@@ -4,7 +4,7 @@
    
 2. **Huấn luyện mô hình gợi ý**
    
-python manage.py train_model
+   python manage.py train_model
 
 3. **Chạy server**
 
