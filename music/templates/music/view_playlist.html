@@ -1,0 +1,57 @@
+{% extends 'music/base.html' %}
+{% load static %}
+{% block title %}{{ playlist.name }}{% endblock %}
+{% block main-content %}
+<link rel="stylesheet" href="{% static 'music/css/view_playlist.css' %}">
+<div class="playlist-header">
+    <div class="playlist-header-icon">🎵</div>
+    <div class="playlist-header-text">
+      <h2>{{ playlist.name }}</h2>
+      <p>Đã tạo: {{ playlist.created_at|date:"d/m/Y" }}</p>
+    </div>
+  </div>
+
+  <form method="POST" class="add-song-form">
+    {% csrf_token %}
+    <select name="song_id" required>
+      <option value="">🎵 Chọn bài hát để thêm</option>
+      {% for song in all_songs %}
+        <option value="{{ song.id }}">{{ song.title }} - 
+          {% for artist in song.artist.all %}{{ artist.name}}{% if not forloop.last %},{% endif %}{%endfor%}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit">+ Thêm</button>
+  </form>
+
+  {% if songs %}
+    {% for item in songs %}
+    <div class="track">
+      <a class="track-left" href="{% url 'play_song' item.song.id %}">
+        <img src="{{ item.song.image.url }}" alt="{{ item.song.title }}">
+        <div class="track-info">
+          <div class="track-title">{{ item.song.title }}</div>
+          <div class="track-artist"> 
+            <p>
+            {% for artist in item.song.artist.all %}
+            <a href="{% url 'artist_detail' artist.id %}" class="a_artist">
+              {{ artist.name }} </a>
+            {% if not forloop.last %}, {% endif %} {% endfor %}
+          </p>
+          </div>
+        </div>
+        {% comment %} <div class="track-album">{{ item.song.album }}</div> {% endcomment %}
+      </a>
+      <form method="POST" action="{% url 'remove_from_playlist' playlist.id item.song.id %}" class="remove-form">
+        {% csrf_token %}
+        <button type="submit" title="Xoá khỏi playlist">
+          <i class="fas fa-trash"></i>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>Bạn chưa thêm bài hát nào.</p>
+  {% endif %}
+</div>
+{% endblock %}

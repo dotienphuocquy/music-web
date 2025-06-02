@@ -1,0 +1,158 @@
+.playlist-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .playlist-header-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #3e3e3e;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+  }
+
+  .playlist-header-text h2 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: white;
+  }
+
+  .playlist-header-text p {
+    font-size: 14px;
+    color: #b3b3b3;
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    text-decoration: none;
+    color: white;
+    background-color: transparent;
+  }
+
+  .track:hover {
+    background-color: #2a2a2a;
+  }
+
+  .track-left {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    flex: 1;
+  }
+
+  .track img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    margin-right: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .track-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* căn giữa theo chiều dọc */
+}
+
+  .track-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .track-artist {
+    font-size: 14px;
+    color: #b3b3b3;
+  }
+
+  .track-album {
+    font-size: 14px;
+    color: #b3b3b3;
+    text-align: right;
+    min-width: 200px;
+  }
+
+  .remove-form {
+    margin-left: 16px;
+  }
+
+  .remove-form button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px;
+    transition: color 0.2s;
+  }
+  
+  .remove-form button:hover {
+    color: #ff4d4d;
+  }
+  
+
+  .add-song-form {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #1a1a1a;
+    padding: 16px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+
+  .add-song-form select {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2a2a2a;
+    color: white;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .add-song-form option {
+    background-color: #1a1a1a;
+    color: white;
+  }
+
+  .add-song-form button {
+    background-color: #1db954;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .add-song-form button:hover {
+    background-color: #1ed760;
+  }
+  a.a_artist {
+    color: white;
+    text-decoration: underline;
+  }

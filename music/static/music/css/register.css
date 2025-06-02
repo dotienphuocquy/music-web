@@ -1,0 +1,55 @@
+.register-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: white;
+  }
+  .register-container {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    width: 320px;
+  }
+  .register-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .register-container input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+  }
+  .register-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1db954;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .register-container button:hover {
+    background-color: #1ed760;
+  }
+  .link {
+    text-align: center;
+    margin-top: 15px;
+  }
+  .link a {
+    color: #1db954;
+    text-decoration: none;
+  }
+  .link a:hover {
+    text-decoration: underline;
+  }
+  .messages p {
+    color: #ff4d4d;
+    font-size: 14px;
+    text-align: center;
+  }

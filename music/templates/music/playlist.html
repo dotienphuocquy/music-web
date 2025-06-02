@@ -1,0 +1,244 @@
+{% extends 'music/base.html' %}
+{% load static %}
+{% block title %}Playlist của bạn{% endblock %}
+{% block main-content %}
+
+  <link rel="stylesheet" href="{% static 'music/css/playlist.css' %}">
+<style>
+  .playlist-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 40px 20px;
+    color: white;
+  }
+
+  .playlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .playlist-header h2 {
+    font-size: 32px;
+    font-weight: bold;
+  }
+
+  .playlist-list {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .playlist-card {
+    background-color: #181818;
+    border-radius: 10px;
+    padding: 20px;
+    transition: background 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+  }
+
+  .playlist-card:hover {
+    background-color: #282828;
+  }
+
+  .playlist-card h3 {
+    font-size: 18px;
+    margin: 0;
+    font-weight: bold;
+  }
+
+  .playlist-card p {
+    font-size: 14px;
+    color: #b3b3b3;
+    margin-top: 4px;
+  }
+
+  .sidebar-form {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    background-color: #121212;
+    color: white;
+    padding: 30px 25px;
+    border-radius: 12px;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .sidebar-form.active {
+    display: block;
+  }
+
+  .sidebar-form h3 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .sidebar-form input {
+    width: 100%;
+    padding: 10px;
+    background: #282828;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-bottom: 15px;
+  }
+
+  .sidebar-form button[type="submit"] {
+    width: 100%;
+    background-color: #1db954;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .sidebar-form button[type="submit"]:hover {
+    background-color: #1ed760;
+  }
+
+  .sidebar-form .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: white;
+    cursor: pointer;
+  }
+
+  .create-playlist-sidebar {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+  }
+
+  .create-playlist-sidebar button {
+    background-color: #1db954;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.3s ease;
+    margin-bottom: 100px;
+  }
+
+  .create-playlist-sidebar button:hover {
+    background-color: #1ed760;
+  }
+
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    z-index: 9998;
+  }
+
+  .popup-overlay.active {
+    display: block;
+  }
+
+  .delete-playlist-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .delete-playlist-btn:hover {
+    color: #ff4c4c;
+  } 
+</style>
+<div class="playlist-container">
+  <div class="playlist-header">
+    <h2>Playlist của bạn</h2>
+  </div>
+
+  <div class="playlist-list">
+    {% for playlist in playlists %}
+    <div class="playlist-card">
+      <a href="{% url 'view_playlist' playlist.id %}" style="text-decoration: none; color: white">
+        <h3>{{ playlist.name }}</h3>
+        <p>Đã tạo: {{ playlist.created_at|date:"d/m/Y" }}</p>
+      </a>
+      <button class="delete-playlist-btn" onclick="openDeleteSidebar({{ playlist.id }}, '{{ playlist.name }}')"><i class="fas fa-trash"></i></button>
+    </div>
+    {% empty %}
+    <p>Bạn chưa có playlist nào.</p>
+    {% endfor %}
+  </div>
+
+  <div class="create-playlist-sidebar">
+    <button onclick="toggleSidebar()">+ Tạo Playlist</button>
+  </div>
+
+  <!-- Overlay & Form Tạo Playlist -->
+  <div class="popup-overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar-form" id="playlistSidebar">
+    <button class="close-btn" onclick="toggleSidebar()">×</button>
+    <h3>Tạo Playlist mới</h3>
+    <form method="POST" action="{% url 'create_playlist' %}">
+      {% csrf_token %}
+      <input type="text" name="name" placeholder="Tên playlist" required />
+      <button type="submit">Tạo</button>
+    </form>
+  </div>
+
+  <!-- Overlay & Sidebar xác nhận xóa -->
+  <div class="popup-overlay" id="deleteOverlay" onclick="closeDeleteSidebar()"></div>
+  <div class="sidebar-form" id="deleteSidebar">
+    <button class="close-btn" onclick="closeDeleteSidebar()">×</button>
+    <h3>Xác nhận xóa playlist</h3>
+    <p id="deletePlaylistName" style="text-align: center; margin-top: 10px"></p>
+    <form id="deleteForm" method="POST">
+      {% csrf_token %}
+      <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center">
+        <button type="submit" style="background-color: #e53935; padding: 10px 20px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">
+          Xóa
+        </button>
+        <button type="button" onclick="closeDeleteSidebar()" style="background-color: #444; padding: 10px 20px; border: none; border-radius: 6px; color: white; cursor: pointer;">
+          Hủy
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById("playlistSidebar").classList.toggle("active");
+      document.getElementById("overlay").classList.toggle("active");
+    }
+
+    function openDeleteSidebar(playlistId, playlistName) {
+      document.getElementById("deletePlaylistName").textContent =
+        'Bạn có chắc chắn muốn xóa "' + playlistName + '"?';
+      document.getElementById("deleteForm").action =
+        "/playlist/" + playlistId + "/delete/";
+      document.getElementById("deleteSidebar").classList.add("active");
+      document.getElementById("deleteOverlay").classList.add("active");
+    }
+
+    function closeDeleteSidebar() {
+      document.getElementById("deleteSidebar").classList.remove("active");
+      document.getElementById("deleteOverlay").classList.remove("active");
+    }
+  </script>
+</div>
+{% endblock %}

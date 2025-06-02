@@ -1,0 +1,35 @@
+{% extends 'music/base.html' %} {% load static %} 
+{% block title %}Trang chủ{%endblock %} {% block main-content %}
+
+<link rel="stylesheet" href="{% static 'music/css/index.css' %}" />
+<div class="song-grid">
+  {% for song in songs %}
+  <div
+    class="song-card"
+    onclick="window.location.href='{% url 'play_song' song.id %}'"
+  >
+    <img src="{{ song.image.url }}" alt="Cover" />
+    <div class="song-info">
+      <h3>{{ song.title }}</h3>
+      <p>
+        {% for artist in song.artist.all %} {{ artist.name }}{% if not forloop.last %}, {% endif %} {% endfor %}
+      </p>
+      <p>Đánh giá trung bình: {{ song.average_rating|default:"Chưa có" }}</p>
+    </div>
+    <form>
+      <button
+        class="play-btn play-song"
+        data-song-url="{{ song.audio.url }}"
+        data-song-title="{{ song.title }}"
+        data-song-artist="{% for artist in song.artist.all %}{{ artist.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+        data-song-id="{{ song.id }}"
+        data-song-image="{{ song.image.url }}"
+        onclick="event.stopPropagation();"
+      >
+        Phát ▶
+      </button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

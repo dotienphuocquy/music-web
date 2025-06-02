@@ -1,0 +1,96 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block title %}Bài hát đã thích{% endblock %}
+
+{% block home-content %}
+<link rel="stylesheet" href="{% static 'music/css/favorites.css' %}" />
+
+<div class="favorites-container">
+  <!-- Header section -->
+  <div class="favorites-header">
+    <div class="header-content">
+      <h1>Bài hát đã thích</h1>
+      <p class="subtitle">{{ favorites|length }} bài hát</p>
+    </div>
+  </div>
+
+  <!-- Songs table -->
+  <div class="songs-table-container">
+    {% if favorites %}
+    <table class="songs-table">
+      <thead>
+        <tr>
+          <th class="index-col"></th>
+          <th class="title-col">TIÊU ĐỀ</th>
+          <th class="album-col">ALBUM</th>
+          <th class="time-col">THỜI GIAN</th>
+          <th class="action-col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for favorite in favorites %}
+        <tr class="song-row" onclick="window.location.href='{% url 'play_song' favorite.song.id %}'">
+          <td class="index-col">{{ forloop.counter }}</td>
+          <td class="title-col">
+            <div class="song-info">
+              <img src="{{ favorite.song.image.url }}" alt="{{ favorite.song.title }}" class="song-image">
+              <div>
+                <div class="song-title">{{ favorite.song.title }}</div>
+                <div class="song-artist">
+                  {% for artist in favorite.song.artist.all %}
+                  <a href="{% url 'artist_detail' artist.id %}">{{ artist.name }}</a>{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="album-col">
+            <a href="#" class="album-link">#</a>
+          </td>
+          <td class="time-col">
+            <span class="timestamp" title="{{ favorite.song.added_at|date:'d/m/Y H:i' }}">
+              {{ favorite.added_at|timesince }} trước
+            </span>
+          </td>
+          <td>
+            <button class="remove-fav-btn" 
+                    onclick="removeFavorite(event, '{{ favorite.song.id }}')">
+              <i class="fas fa-heart"></i>
+            </button>
+            <form id="remove-form-{{ favorite.song.id }}" 
+                  method="post" 
+                  action="{% url 'remove_favorite' favorite.song.id %}" 
+                  style="display: none;">
+              {% csrf_token %}
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-heart-broken"></i>
+      <h3>Bạn chưa có bài hát yêu thích nào</h3>
+      <p>Tìm kiếm bài hát và nhấn nút yêu thích để thêm vào danh sách</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+<script>
+  function removeFavorite(event, songId) {
+    // Ngăn sự kiện click lan ra các phần tử cha
+    event.stopPropagation();
+    
+    // Tìm form tương ứng và submit
+    const form = document.getElementById(`remove-form-${songId}`);
+    if (form) {
+      form.submit();
+    }
+  }
+  </script>
+{% endblock %}

@@ -1,0 +1,174 @@
+/* Main container */
+.favorites-container {
+    padding: 20px 30px;
+    color: white;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  
+  /* Header section */
+  .favorites-header {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    padding-top: 20px;
+  }
+  
+  .header-content h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: 700;
+  }
+  
+  .subtitle {
+    color: #b3b3b3;
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Songs table */
+  .songs-table-container {
+    margin-top: 20px;
+  }
+  
+  .songs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .songs-table th {
+    color: #b3b3b3;
+    text-align: left;
+    font-weight: 400;
+    font-size: 0.9rem;
+    padding: 10px;
+    border-bottom: 1px solid #282828;
+  }
+  
+  .songs-table td {
+    padding: 10px;
+    border-bottom: 1px solid #282828;
+    vertical-align: middle;
+  }
+  
+  /* Columns */
+  .index-col {
+    width: 40px;
+    text-align: center;
+    color: #b3b3b3;
+  }
+  
+  .title-col {
+    width: 40%;
+  }
+  
+  .album-col {
+    width: 30%;
+  }
+  
+  .time-col {
+    width: 100px;
+    text-align: right;
+  }
+  
+  .action-col {
+    width: 50px;
+  }
+  
+  /* Song row styling */
+  .song-row {
+    transition: background-color 0.2s;
+    cursor: pointer;
+  }
+  
+  .song-row:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .song-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .song-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+  }
+  
+  .song-title {
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+  
+  .song-artist {
+    font-size: 0.9rem;
+    color: #b3b3b3;
+  }
+  
+  .song-artist a {
+    color: #b3b3b3;
+    text-decoration: none;
+  }
+  
+  .song-artist a:hover {
+    text-decoration: underline;
+    color: white;
+  }
+  
+  .album-link {
+    color: #b3b3b3;
+    text-decoration: none;
+  }
+  
+  .album-link:hover {
+    text-decoration: underline;
+    color: white;
+  }
+  
+  .duration {
+    color: #b3b3b3;
+    margin-right: 15px;
+  }
+  
+  /* Remove favorite button */
+  .remove-fav-btn {
+    background: none;
+    border: none;
+    color: #1db954;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  
+  .song-row:hover .remove-fav-btn {
+    opacity: 1;
+  }
+  
+  .remove-fav-btn:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #b3b3b3;
+  }
+  
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #535353;
+  }
+  
+  .empty-state h3 {
+    color: white;
+    margin-bottom: 10px;
+  }
+  
+  .empty-state p {
+    margin: 0;
+  }

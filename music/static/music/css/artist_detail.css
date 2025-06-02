@@ -1,0 +1,113 @@
+.artist-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 40px;
+    background: linear-gradient(to right, #1e3264, #121212);
+    color: white;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .artist-header img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .artist-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .artist-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #b3b3b3;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .artist-name {
+    font-size: 48px;
+    font-weight: 800;
+  }
+
+  .section-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: white;
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+  }
+
+  .track:hover {
+    background-color: #2a2a2a;
+  }
+
+  .track-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    text-decoration: none;
+    color: white;
+  }
+
+  .track img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    margin-right: 16px;
+    object-fit: cover;
+  }
+
+  .track-info {
+    flex: 1;
+  }
+
+  .track-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .track-album {
+    font-size: 14px;
+    color: #b3b3b3;
+    text-align: right;
+    min-width: 200px;
+  }
+
+  .track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.track-artist {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+.track-rating {
+  font-size: 0.9rem;
+  color: #ffcc00;
+  text-align: right;
+  margin-top: 5px;
+}

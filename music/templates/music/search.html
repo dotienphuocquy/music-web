@@ -1,0 +1,499 @@
+{% extends 'music/base.html' %}
+{% load static %}
+{% block title %}Tìm kiếm{% endblock %}
+{% block main-content %}
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+    color: #fff;
+  }
+
+  h1, h2 {
+    font-size: 32px;
+    margin: 40px 30px 20px;
+    text-align: center;
+    background: linear-gradient(45deg, #1db954, #2ecc71);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  h3 {
+    font-size: 24px;
+    margin: 30px 30px 15px;
+    color: #d1d1d1;
+    animation: fadeIn 0.7s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .artists-container {
+    padding: 0 30px;
+  }
+
+  .artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+  }
+
+  .artist-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    animation: fadeIn 0.7s ease-out;
+  }
+
+  .artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .artist-card img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid transparent;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .artist-card:hover img {
+    border-color: #1ed760;
+    transform: scale(1.1);
+  }
+
+  .artist-card h4 {
+    font-size: 16px;
+    color: #fff;
+    margin: 10px 0 0;
+    transition: color 0.3s ease;
+  }
+
+  .artist-card:hover h4 {
+    color: #1ed760;
+  }
+
+  .artist-card .artist-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #d1d1d1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+  }
+
+  .artist-card:hover .artist-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .songs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px;
+    padding: 30px;
+  }
+
+  .song {
+    background: #282828;
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    animation: fadeIn 0.9s ease-out;
+  }
+
+  .song:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .song img {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 10px;
+  }
+
+  .song h4 {
+    font-size: 18px;
+    margin: 5px 0;
+    color: #fff;
+  }
+
+  .song p {
+    color: #bbb;
+    margin: 0;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .song .artists {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .song .a_artist {
+    color: #b3b3b3;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: #333;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .song .a_artist:hover {
+    background: #1db954;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .song .a_artist .artist-tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #d1d1d1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+  }
+
+  .song .a_artist:hover .artist-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .song-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .play-btn {
+    padding: 8px 16px;
+    background: linear-gradient(45deg, #1db954, #2ecc71);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .play-btn:hover {
+    background: linear-gradient(45deg, #1ed760, #27ae60);
+    transform: translateY(-2px);
+  }
+
+  .add-to-playlist-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    background: transparent;
+    color: #fff;
+    border: 1px solid #1db954;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .add-to-playlist-btn:hover {
+    background: rgba(29, 185, 84, 0.2);
+    border-color: #1ed760;
+    transform: translateY(-2px);
+  }
+
+  .fav-btn {
+    font-size: 18px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+  }
+
+  .fav-btn i {
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .fav-btn.active i {
+    color: #ff4d4d;
+  }
+
+  .fav-btn:hover i {
+    transform: scale(1.2);
+  }
+
+  .stars {
+    font-size: 16px;
+  }
+
+  .star {
+    color: #b3b3b3;
+  }
+
+  .star.filled {
+    color: #ffd700;
+  }
+
+  #playlistModal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #222;
+    padding: 30px;
+    border-radius: 12px;
+    z-index: 1000;
+    color: #fff;
+    box-shadow: 0 0 10px #000;
+  }
+
+  #playlistModal select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  #playlistModal select option {
+    background: #222;
+    color: #fff;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .modal-buttons .play-btn {
+    flex: 1;
+  }
+
+  .modal-buttons .cancel-btn {
+    background: #555;
+  }
+
+  .modal-buttons .cancel-btn:hover {
+    background: #666;
+  }
+
+  #modalOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .artists-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 20px;
+    }
+
+    .artist-card img {
+      width: 120px;
+      height: 120px;
+    }
+
+    .songs {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .song h4 {
+      font-size: 16px;
+    }
+
+    .song .a_artist {
+      font-size: 12px;
+      padding: 3px 6px;
+    }
+  }
+</style>
+
+<h2>Kết quả tìm kiếm cho "{{ query }}"</h2>
+{% if artists %}
+  <h3>Nghệ sĩ nổi bật</h3>
+  <div class="artists-container">
+    <div class="artists-grid">
+      {% for artist in artists %}
+      <div class="artist-card">
+        <a href="{% url 'artist_detail' artist.id %}">
+          <img src="{{ artist.image.url }}" alt="{{ artist.name }}" />
+          <h4>{{ artist.name }}</h4>
+          <span class="artist-tooltip">
+            {% with song_count=artist.song_set.count %}
+              {{ song_count }} bài hát
+            {% endwith %}
+          </span>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% if songs %}
+  <h3>Bài hát thịnh hành</h3>
+  <div class="songs">
+    {% for song in songs %}
+    <div class="song" onclick="window.location.href='{% url 'play_song' song.id %}'">
+      <img src="{{ song.image.url }}" alt="{{ song.title }}" />
+      <h4>{{ song.title }}</h4>
+      <p class="artists">
+        {% for artist in song.artist.all %}
+        <a href="{% url 'artist_detail' artist.id %}" class="a_artist">
+          {{ artist.name }}
+          <span class="artist-tooltip">
+            {% with song_count=artist.song_set.count %}
+              {{ song_count }} bài hát
+            {% endwith %}
+          </span>
+        </a>{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </p>
+      <p>
+        {% if song.average_rating %}
+          {{ song.average_rating|floatformat:1 }}
+          <span class="stars">
+            {% with full_stars=song.average_rating|floatformat:0 %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= full_stars|add:"0" %}
+                  <span class="star filled">★</span>
+                {% else %}
+                  <span class="star">★</span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </span>
+        {% else %}
+          {% for i in "12345" %}
+            <span class="star">★</span>
+          {% endfor %}
+        {% endif %}
+      </p>
+      <div class="song-actions">
+        <button class="add-to-playlist-btn" onclick="event.stopPropagation();openModal({{ song.id }}, '{{ song.title|escapejs }}')">
+          +
+        </button>
+        <button class="play-btn play-song"
+                data-song-url="{{ song.audio.url }}"
+                data-song-title="{{ song.title }}"
+                data-song-artist="{% for artist in song.artist.all %}{{ artist.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+                data-song-id="{{ song.id }}"
+                data-song-image="{{ song.image.url }}"
+                onclick="event.stopPropagation();">
+          Phát ▶
+        </button>
+        {% if user.is_authenticated %}
+        {% if song in favorite_songs %}
+        <a href="{% url 'remove_favorite_home' song.id %}" onclick="event.stopPropagation();">
+          <button class="fav-btn active"><i class="fa-solid fa-heart"></i></button>
+        </a>
+        {% else %}
+        <a href="{% url 'add_favorite' song.id %}" onclick="event.stopPropagation();">
+          <button class="fav-btn"><i class="fa-regular fa-heart"></i></button>
+        </a>
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <p>Chưa có bài hát nào được tải lên.</p>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>Không tìm thấy bài hát nào.</p>
+{% endif %}
+
+<!-- Modal -->
+<div id="playlistModal">
+  <h3 id="modalSongTitle">Thêm vào playlist</h3>
+  <form method="post" action="{% url 'add_to_playlist_dropdown' %}">
+    {% csrf_token %}
+    <input type="hidden" name="song_id" id="modalSongId" />
+    <select name="playlist_id" required>
+      {% for playlist in playlists %}
+      <option value="{{ playlist.id }}">{{ playlist.name }}</option>
+      {% endfor %}
+    </select>
+    <div class="modal-buttons">
+      <button type="submit" class="play-btn">Thêm</button>
+      <button type="button" class="play-btn cancel-btn" onclick="closeModal()">Hủy</button>
+    </div>
+  </form>
+</div>
+
+<!-- Overlay -->
+<div id="modalOverlay" onclick="closeModal()"></div>
+
+<script>
+  function openModal(songId, songTitle) {
+    document.getElementById("modalSongId").value = songId;
+    document.getElementById("modalSongTitle").innerText = 'Thêm "' + songTitle + '" vào playlist';
+    document.getElementById("playlistModal").style.display = "block";
+    document.getElementById("modalOverlay").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("playlistModal").style.display = "none";
+    document.getElementById("modalOverlay").style.display = "none";
+  }
+
+  // Ngăn click vào a_artist kích hoạt onclick của song
+  document.querySelectorAll('.song .a_artist').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+
+  // Ngăn click vào song-actions kích hoạt onclick của song
+  document.querySelectorAll('.song-actions button, .song-actions a').forEach(element => {
+    element.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,304 @@
+{% extends 'music/base.html' %} {% load static %} 
+{% block title %} {{song.title }} - Đang phát {% endblock %} {% block main-content %}
+
+<link rel="stylesheet" href="{% static 'music/css/artist_detail.css' %}" />
+
+<div
+  class="play-container"
+  id="player"
+  data-next-url="{% if next_song %}{% url 'play_song' next_song.id %}{% endif %}"
+  data-prev-url="{% if prev_song %}{% url 'play_song' prev_song.id %}{% endif %}"
+>
+  <img src="{{ song.image.url }}" class="song-cover" alt="{{ song.title }}" />
+
+  <div class="song-info">
+    <p>Bài hát</p>
+    <h1>{{ song.title }}</h1>
+
+    <div class="artist">
+      <span>
+        <p>
+          {% for artist in song.artist.all %}
+          <a href="{% url 'artist_detail' artist.id %}" class="a_artist">
+            {{ artist.name }} </a
+          >{% if not forloop.last %}, {% endif %} {% endfor %}
+        </p>
+      </span>
+    </div>
+
+    <div class="controls">
+      <button id="prevBtn">⏮</button>
+      <button id="playPauseBtn">⏸</button>
+      <button id="nextBtn">⏭</button>
+    </div>
+
+    <div class="progress">
+      <span class="time" id="currentTime">0:00</span>
+      <input type="range" id="seekSlider" value="0" step="1" />
+      <span class="time" id="duration">0:00</span>
+    </div>
+
+    <audio id="audioPlayer" autoplay>
+      <source src="{{ song.audio.url }}" type="audio/mpeg" />
+      Trình duyệt của bạn không hỗ trợ audio.
+    </audio>
+
+    <!-- Đánh giá -->
+    <div class="rating-wrapper" data-rate-url="{% url 'rate_song' song.id %}">
+      {% csrf_token %}
+      <div class="star-rating">
+        {% for i in rating_range %}
+          <input type="radio" id="star-{{ i }}" name="rating" value="{{ i }}" {% if user_rating == i %}checked{% endif %}/>
+          <label for="star-{{ i }}" data-value="{{ i }}">★</label>
+        {% endfor %}
+      </div>
+
+      <p class="average-rating">
+        Đánh giá trung bình: {% if average_rating is not None %}{{average_rating|floatformat:1 }}{% else %}Chưa có{% endif %} ★
+      </p>
+
+      <div
+        class="rating-message"
+        style="
+          display: none;
+          color: green;
+          text-align: center;
+          margin-top: 10px;
+        "
+      ></div>
+      <button id="submit-rating" class="rating-submit-btn">Gửi đánh giá</button>
+    </div>
+  </div>
+</div>
+<div>
+  <h2 class="section-title">Bài hát đề xuất</h2>
+  {% if songs %}
+    {% for item in songs %}
+    <div class="track">
+      <a class="track-left" href="{% url 'play_song' item.id %}">
+        <img src="{{ item.image.url }}" alt="{{ item.title }}">
+        <div class="track-info">
+          <div class="track-title">{{ item.title }}</div>
+        </div>
+        <div class="track-album">{{ item.album }}</div>
+      </a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>Không có bài hát nào.</p>
+  {% endif %}
+</div>
+<link rel="stylesheet" href="{% static 'music/css/play_song.css' %}" />
+<style>
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 10px; /* Tăng khoảng cách giữa các sao để dễ nhìn hơn */
+  }
+  .star-rating input {
+    display: none;
+  }
+  .star-rating label {
+    font-size: 2rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .star-rating input:checked ~ label,
+  .star-rating label:hover,
+  .star-rating label:hover ~ label {
+    color: #ffcc00;
+  }
+
+  /* Đánh giá trung bình */
+  .average-rating {
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem; /* Điều chỉnh kích thước chữ */
+    margin-top: 10px;
+    color: #333; /* Màu chữ tối cho dễ đọc */
+  }
+
+  .average-rating .stars {
+    color: #ffcc00;
+    margin-right: 8px; /* Tăng khoảng cách giữa sao và chữ */
+    font-size: 1.8rem; /* Làm cho sao lớn hơn một chút */
+  }
+
+  .average-rating span {
+    font-size: 1rem;
+    color: #666; /* Màu chữ cho phần "Đánh giá trung bình" */
+  }
+
+  .rating-submit-btn {
+    background-color: #1db954;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2rem; /* Điều chỉnh kích thước chữ */
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+    margin-top: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .rating-submit-btn:hover {
+    background-color: #17a74a;
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .rating-submit-btn:active {
+    background-color: #14863d;
+    transform: scale(0.98);
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // ==================== PHÁT NHẠC ====================
+    const player = document.getElementById("player");
+    const audio = document.getElementById("audioPlayer");
+    const playBtn = document.getElementById("playPauseBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const seekSlider = document.getElementById("seekSlider");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+
+    const nextUrl = player.dataset.nextUrl;
+    const prevUrl = player.dataset.prevUrl;
+
+    function tryAutoplay() {
+      audio
+        .play()
+        .then(() => {
+          playBtn.textContent = "⏸";
+        })
+        .catch(() => {
+          playBtn.textContent = "▶";
+          playBtn.addEventListener(
+            "click",
+            function firstClick() {
+              audio.play();
+              playBtn.textContent = "⏸";
+              playBtn.removeEventListener("click", firstClick);
+            },
+            { once: true }
+          );
+        });
+    }
+
+    function formatTime(t) {
+      const min = Math.floor(t / 60);
+      const sec = Math.floor(t % 60)
+        .toString()
+        .padStart(2, "0");
+      return `${min}:${sec}`;
+    }
+
+    audio.addEventListener("loadedmetadata", () => {
+      seekSlider.max = Math.floor(audio.duration);
+      durationEl.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      seekSlider.value = Math.floor(audio.currentTime);
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    seekSlider.addEventListener("input", () => {
+      audio.currentTime = seekSlider.value;
+    });
+
+    playBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+        playBtn.textContent = "⏸";
+      } else {
+        audio.pause();
+        playBtn.textContent = "▶";
+      }
+    });
+
+    audio.addEventListener("ended", () => {
+      if (nextUrl) {
+        window.location.href = nextUrl;
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (nextUrl) {
+        window.location.href = nextUrl;
+      }
+    });
+
+    prevBtn.addEventListener("click", () => {
+      if (prevUrl) {
+        window.location.href = prevUrl;
+      }
+    });
+
+    if (audio.readyState > 3) {
+      tryAutoplay();
+    } else {
+      audio.addEventListener("canplaythrough", tryAutoplay);
+    }
+
+    // ==================== GỬI ĐÁNH GIÁ ====================
+    const wrappers = document.querySelectorAll(".rating-wrapper");
+
+    wrappers.forEach((wrapper) => {
+      const rateUrl = wrapper.dataset.rateUrl;
+      const csrfToken = wrapper.querySelector(
+        "[name=csrfmiddlewaretoken]"
+      ).value;
+      const submitBtn = wrapper.querySelector(".rating-submit-btn");
+      const messageDiv = wrapper.querySelector(".rating-message");
+      const avgRating = wrapper.querySelector(".average-rating");
+
+      submitBtn.addEventListener("click", () => {
+        const selected = wrapper.querySelector("input[name='rating']:checked");
+        if (!selected) {
+          alert("Vui lòng chọn số sao để đánh giá.");
+          return;
+        }
+
+        fetch(rateUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({ rating: parseInt(selected.value) }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            messageDiv.textContent = data.message;
+            messageDiv.style.color = data.success ? "green" : "red";
+            messageDiv.style.display = "block";
+            if (data.success && data.new_average !== undefined) {
+              avgRating.textContent = `Đánh giá trung bình: ${data.new_average.toFixed(
+                2
+              )}`;
+            }
+            setTimeout(() => {
+              messageDiv.style.display = "none";
+            }, 3000);
+          })
+          .catch(() => {
+            messageDiv.textContent = "Đã xảy ra lỗi khi gửi đánh giá.";
+            messageDiv.style.color = "red";
+            messageDiv.style.display = "block";
+            setTimeout(() => {
+              messageDiv.style.display = "none";
+            }, 3000);
+          });
+      });
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'music/base.html' %}
+{% load static %}
+
+{% block title %}Đăng ký{% endblock %}
+
+{% block main-content %}
+  <link rel="stylesheet" href="{% static 'music/css/register.css' %}">
+  <div class="register-wrapper">
+    <div class="register-container">
+      <h2>📻 Đăng ký</h2>
+      <div class="messages">
+        {% if messages %}
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Tên tài khoản" required>
+        <input type="password" name="password" placeholder="Mật khẩu" required>
+        <input type="password" name="confirm_password" placeholder="Nhập lại mật khẩu" required>
+        <button type="submit">Đăng ký</button>
+      </form>
+      <div class="link">
+        <p>Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a></p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

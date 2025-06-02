@@ -1,0 +1,386 @@
+{% extends 'music/base.html' %}
+{% block title %}Đăng bài hát{% endblock %}
+{% load static %}
+
+{% block home-content %}
+<style>
+    .upload-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+        padding: 40px 20px;
+    }
+
+    .upload-card {
+        width: 100%;
+        max-width: 640px;
+        background: #1e1e1e;
+        padding: 48px;
+        border-radius: 24px;
+        color: #fff;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .upload-card h2 {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 32px;
+        background: linear-gradient(45deg, #1db954, #2ecc71);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 28px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 10px;
+        display: block;
+        color: #d1d1d1;
+        transition: color 0.3s ease;
+    }
+
+    .form-group input[type="text"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 14px 16px 14px 48px;
+        border-radius: 12px;
+        background-color: #2a2a2a;
+        border: 1px solid #555;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%204%205'%3E%3Cpath%20fill='%23d1d1d1'%20d='M2%200L0%202h4L2%200z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 12px;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: #1ed760;
+        background-color: #333;
+        box-shadow: 0 0 8px rgba(29, 185, 84, 0.3);
+        outline: none;
+    }
+
+    .form-group input[type="file"] {
+        display: none;
+    }
+
+    .file-label {
+        display: flex;
+        align-items: center;
+        background: linear-gradient(145deg, #2a2a2a, #333);
+        color: #d1d1d1;
+        padding: 12px 16px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 15px;
+        gap: 8px;
+    }
+
+    .file-label:hover {
+        background: linear-gradient(145deg, #333, #3a3a3a);
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .file-label i {
+        font-size: 16px;
+    }
+
+    .file-name {
+        color: #1db954;
+        font-size: 13px;
+        margin-top: 8px;
+        display: block;
+    }
+
+    .error-message {
+        color: #ff4d4d;
+        font-size: 13px;
+        margin-top: 6px;
+        display: none;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(45deg, #1db954, #2ecc71);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .btn-submit:hover {
+        background: linear-gradient(45deg, #1ed760, #27ae60);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(29, 185, 84, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: scale(0.98);
+    }
+
+    .btn-submit i {
+        font-size: 20px;
+    }
+
+    .btn-submit.loading::after {
+        content: '';
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border: 3px solid #fff;
+        border-top: 3px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .form-group .input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #d1d1d1;
+        font-size: 18px;
+        transition: color 0.3s ease;
+    }
+
+    .form-group input:focus + .input-icon,
+    .form-group select:focus + .input-icon {
+        color: #1ed760;
+    }
+
+    /* Cải tiến cho trường nghệ sĩ */
+    .artist-group {
+        position: relative;
+    }
+
+    .artist-group input[type="text"] {
+        background: linear-gradient(145deg, #2a2a2a, #333);
+        border: 1px solid #1db954;
+        border-radius: 14px;
+        padding: 16px 16px 16px 48px;
+        font-size: 16px;
+        transition: all 0.4s ease;
+    }
+
+    .artist-group input:focus {
+        background: #333;
+        box-shadow: 0 0 12px rgba(29, 185, 84, 0.5);
+        border-color: #2ecc71;
+    }
+
+    .artist-group .input-icon {
+        font-size: 20px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: translateY(-50%) scale(1); }
+        50% { transform: translateY(-50%) scale(1.2); }
+        100% { transform: translateY(-50%) scale(1); }
+    }
+
+    /* Autocomplete */
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #2a2a2a;
+        border: 1px solid #555;
+        border-radius: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        margin-top: 4px;
+    }
+
+    .autocomplete-suggestion {
+        padding: 12px 16px;
+        color: #d1d1d1;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .autocomplete-suggestion:hover {
+        background: #1db954;
+        color: #fff;
+    }
+</style>
+
+<div class="upload-wrapper">
+    <div class="upload-card">
+        <h2> Đăng bài hát của bạn</h2>
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_title">Tên bài hát</label>
+                <i class="input-icon"></i>
+                {{ form.title }}
+                <span class="error-message" id="title-error">Vui lòng nhập tên bài hát</span>
+            </div>
+            <div class="form-group artist-group">
+                <label for="id_artist">Nghệ sĩ</label>
+                <i class="input-icon"></i>
+                {{ form.artist }}
+                <div class="autocomplete-suggestions" id="artist-suggestions"></div>
+                <span class="error-message" id="artist-error">Vui lòng nhập tên nghệ sĩ</span>
+            </div>
+            <div class="form-group">
+                <label for="id_genre">Thể loại</label>
+                {{ form.genre }}
+                <span class="error-message" id="genre-error">Vui lòng chọn thể loại</span>
+            </div>
+            <div class="form-group">
+                <label for="id_audio">Chọn file nhạc (MP3)</label>
+                <label class="file-label" for="id_audio"><i></i> Chọn file MP3</label>
+                {{ form.audio }}
+                <span class="file-name" id="audio-file-name">Chưa chọn file</span>
+                <span class="error-message" id="audio-error">Vui lòng chọn file MP3</span>
+            </div>
+            <div class="form-group">
+                <label for="id_image">Chọn ảnh bìa (JPG, PNG)</label>
+                <label class="file-label" for="id_image"><i></i> Chọn ảnh bìa</label>
+                {{ form.image }}
+                <span class="file-name" id="image-file-name">Chưa chọn file</span>
+                <span class="error-message" id="image-error">Vui lòng chọn file JPG hoặc PNG</span>
+            </div>
+            <button type="submit" class="btn-submit" id="submitBtn">
+                <i></i> Đăng bài hát
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Hiển thị tên file đã chọn
+    document.getElementById('id_audio').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Chưa chọn file';
+        document.getElementById('audio-file-name').textContent = fileName;
+    });
+
+    document.getElementById('id_image').addEventListener('change', function(e) {
+        const fileName = e.target.files[0]?.name || 'Chưa chọn file';
+        document.getElementById('image-file-name').textContent = fileName;
+    });
+
+    // Autocomplete cho trường nghệ sĩ
+    const artistInput = document.getElementById('id_artist');
+    const suggestionsContainer = document.getElementById('artist-suggestions');
+    const artists = ['Hà Anh Tuấn', 'Sơn Tùng M-TP', 'Bích Phương', 'Đen Vâu', 'Tùng Dương', 'Mỹ Tâm', 'Trần Tiến']; // Danh sách nghệ sĩ mẫu
+
+    artistInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        suggestionsContainer.innerHTML = '';
+        if (query) {
+            const filteredArtists = artists.filter(artist => artist.toLowerCase().includes(query));
+            filteredArtists.forEach(artist => {
+                const div = document.createElement('div');
+                div.className = 'autocomplete-suggestion';
+                div.textContent = artist;
+                div.addEventListener('click', () => {
+                    artistInput.value = artist;
+                    suggestionsContainer.style.display = 'none';
+                });
+                suggestionsContainer.appendChild(div);
+            });
+            suggestionsContainer.style.display = filteredArtists.length ? 'block' : 'none';
+        } else {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+
+    // Ẩn suggestions khi click ra ngoài
+    document.addEventListener('click', function(e) {
+        if (!artistInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+            suggestionsContainer.style.display = 'none';
+        }
+    });
+
+    // Xác thực form trước khi submit
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        let isValid = true;
+
+        // Reset lỗi
+        document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+        // Kiểm tra các trường
+        const title = document.getElementById('id_title').value;
+        const artist = document.getElementById('id_artist').value;
+        const genre = document.getElementById('id_genre').value;
+        const audio = document.getElementById('id_audio').files[0];
+        const image = document.getElementById('id_image').files[0];
+
+        if (!title) {
+            document.getElementById('title-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!artist) {
+            document.getElementById('artist-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!genre) {
+            document.getElementById('genre-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!audio || !audio.name.match(/\.(mp3)$/i)) {
+            document.getElementById('audio-error').style.display = 'block';
+            isValid = false;
+        }
+        if (!image || !image.name.match(/\.(jpg|png)$/i)) {
+            document.getElementById('image-error').style.display = 'block';
+            isValid = false;
+        }
+
+        if (isValid) {
+            const btn = document.getElementById('submitBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.innerHTML = '<i></i> Đang tải lên...';
+            this.submit();
+        }
+    });
+</script>
+{% endblock %}
